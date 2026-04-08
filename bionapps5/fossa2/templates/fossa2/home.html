@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona Startowa</title>
+    <style>
+        /* 1. Reset i ustawienie wysokości na 100% */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Blokada scrolla na boki */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column; /* Układ pionowy: header -> content -> footer */
+        }
+
+        /* 2. Główny kontener wypełniający ekran */
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* 100% wysokości okna przeglądarki */
+            width: 100%;
+        }
+
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0; /* Header nie może się kurczyć */
+        }
+
+        /* 3. Środkowa sekcja, która "pcha" stopkę w dół */
+       .content {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        /* ZMIANA: stretch sprawi, że moduły rozciągną się od góry do dołu */
+        align-items: stretch;
+        padding: 40px 20px; /* Większy padding góra/dół dla lepszego wyglądu */
+        gap: 30px;
+        width: 100%;
+        max-width: 1600px; /* Możesz zwiększyć, żeby moduły były szersze */
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .module {
+        flex: 1;
+        min-width: 350px;
+        background-color: white;
+        border-radius: 12px; /* Lekko większe zaokrąglenie dla nowoczesnego wyglądu */
+        padding: 30px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Mocniejszy cień, skoro są większe */
+        display: flex;
+        flex-direction: column; /* Pozwala kontrolować środek modułu */
+        box-sizing: border-box;
+    }
+
+    .module-title {
+        color: #003366;
+        border-bottom: 2px solid #003366;
+        padding-bottom: 15px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .tiles {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        /* To sprawi, że kafelki nie będą się rozciągać na całą wysokość,
+           jeśli nie chcesz, żeby były gigantyczne. Zostaną na górze modułu. */
+        align-content: start;
+        flex: 1; /* Pozwala siatce zająć dostępną przestrzeń */
+    }
+
+        .tile {
+            background-color: #4CAF50;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60px;
+        }
+
+        .tile:hover {
+            background-color: #45a049;
+            transform: translateY(-3px);
+        }
+
+        /* Przycisk zamrażania */
+        .freeze-btn {
+            background-color: #dc3545;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 10px;
+                transition: filter 0.3s ease, transform 0.2s;
+
+        }
+
+.freeze-btn:hover {
+    /* Zmiana koloru na nieco ciemniejszy */
+    background-color: #bb2d3b;
+
+    /* Lekkie powiększenie i uniesienie */
+    transform: translateY(-3px) scale(1.02);
+
+    /* Dodanie cienia, który nadaje głębi (efekt przycisku nad powierzchnią) */
+    box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+
+    /* Zamiast ekstremalnych filtrów, delikatne rozjaśnienie */
+    filter: brightness(1.1);
+}
+
+        /* 5. Footer zawsze na dole */
+        .footer {
+            background-color: #003366;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            width: 100%;
+            flex-shrink: 0; /* Footer nie może się kurczyć */
+        }
+
+        /* Responsywność dla małych ekranów */
+        @media (max-width: 768px) {
+            .module {
+                min-width: 100%;
+            }
+            .content {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Generator arkuszy oceny jakościowej podmiotów finansowych</h1>
+        {% if aktywny_rok %}
+            <p><strong> Bieżący rok roboczy: {{ aktywny_rok.rok }}</strong></p>
+            <form method="post" onsubmit="return confirm('Czy na pewno chcesz zamrozić rok {{ aktywny_rok.rok }}? Zmiana ta jest nieodwracalna i stworzy bazę pod nowy rok sprawozdawczy.');">
+                {% csrf_token %}
+                <button type="submit" name="zamroz_rok" class="freeze-btn">
+                    Zamroź {{ aktywny_rok.rok }} i otwórz {{ aktywny_rok.rok|add:1 }}
+                </button>
+            </form>
+        {% else %}
+            <p style="color: #ff9999;">Brak otwartego roku w bazie!</p>
+        {% endif %}
+    </div>
+
+    <div class="content">
+        <!-- MODUŁ 1 -->
+        <div class="module">
+            <h2 class="module-title">Moduł Słowników</h2>
+            <div class="tiles">
+                <a href="{% url 'podmiot_list' %}" class="tile">Podmioty</a>
+                <a href="{% url 'grupa_obszarow_list' %}" class="tile">Grupy obszarów</a>
+                <a href="{% url 'obszar_list' %}" class="tile">Obszary</a>
+                <a href="{% url 'blok_list' %}" class="tile">Bloki</a>
+                <a href="{% url 'podblok_list' %}" class="tile">Podbloki</a>
+                <a href="{% url 'pytanie_list' %}" class="tile">Pytania</a>
+                <a href="{% url 'podzapytanie_list' %}" class="tile">Podzapytania</a>
+                <a href="{% url 'grupanaglowek_list' %}" class="tile">Grupy</a>
+                <a href="{% url 'ankieta_naglowek_list' %}" class="tile">Ankiety</a>
+            </div>
+        </div>
+
+        <!-- MODUŁ 2 -->
+        <div class="module">
+            <h2 class="module-title">Moduł Formularzy</h2>
+            <div class="tiles">
+                <a href="{% url 'grupa_podmioty_list' %}" class="tile">Powiązanie podmiotu z grupą</a>
+                <a href="{% url 'ankieta_pytania_list' %}" class="tile">Powiązanie ankiety z pytaniami</a>
+            </div>
+        </div>
+
+        <!-- MODUŁ 3 -->
+        <div class="module">
+            <h2 class="module-title">Generowanie ankiet</h2>
+            <div class="tiles">
+                <a href="{% url 'generowanie_formularzy' %}" class="tile">Generuj formularze</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Urząd Komisji Nadzoru Finansowego</p>
+    </div>
+
+</body>
+</html>

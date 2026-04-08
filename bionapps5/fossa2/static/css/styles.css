@@ -1,0 +1,422 @@
+/* styles.css */
+body {
+    overflow-y: auto;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.header {
+    background-color: #003366;
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between; /* tytuł po lewej, przycisk po prawej */
+    align-items: center;            /* wyrównanie w pionie */
+    padding: 10px 20px;
+}
+/* Nagłówek z przyciskiem po prawej */
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.form-container {
+    background-color: white;
+    padding: 8px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn {
+    padding: 8px 15px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+/* Przyciski w nagłówku */
+.header .btn {
+    margin-left: auto;
+    background-color: #4CAF50;
+
+}
+
+.header .btn:hover {
+    background-color: #4CAF50; /* WYMUSZAMY zielony, żeby nie stał się czarny */
+    filter: brightness(1.3);  /* Rozjaśniamy o 15% - efekt "podświetlenia" */
+    cursor: pointer;
+}
+.btn:hover{
+filter: brightness(2);  /* Rozjaśniamy o 15% - efekt "podświetlenia" */
+    cursor: pointer;
+}
+
+
+
+
+.table-container {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+table th, table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+
+}
+
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+.pagination {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.step-links a {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 0 5px;
+    background-color: #003366;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.step-links a:hover {
+    background-color: #002244;
+}
+
+.current {
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 0 5px;
+    background-color: #f2f2f2;
+    color: #333;
+    border-radius: 4px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.form-group.inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.form-group.inline label {
+    margin-bottom: 0;
+}
+
+.form-group.inline input[type="text"] {
+    width: auto;
+    min-width: 150px;
+}
+
+.btn {
+    margin-left: auto;
+    margin-top: 0;
+    text-decoration: none;
+}
+
+.add-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.add-form .form-group.inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.add-form .form-group.inline label {
+    margin-bottom: 0;
+}
+
+.add-form .form-group.inline input[type="text"] {
+    width: auto;
+    min-width: 150px;
+}
+
+.add-form .btn {
+    margin-left: auto;
+    margin-top: 0;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-control[rows] {
+    min-height: 60px;
+    resize: vertical;
+}
+
+.podmioty-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-left: 5px;
+}
+.filters-right {
+    margin-top: 15px;   /* odstęp od góry */
+}
+.table-wrapper {
+    background-color: white;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+
+padding: 20px;
+    height: auto;   /* tabela rośnie normalnie */}
+.header .btn {
+    margin-left: auto;              /* dodatkowe wypchnięcie na prawo */
+}
+/* Tabela */
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* Komórki */
+.table-wrapper th,
+.table-wrapper td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: white;
+}
+
+/* Sticky header */
+/* Sticky header - poprawiony */
+.table-wrapper th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #003366; /* Granatowe tło */
+    color: white !important; /* <--- TO SPRAWI, ŻE NAPISY BĘDĄ BIAŁE */
+    text-align: left;
+    padding: 12px;
+}
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-form .form-group.inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.filter-form .form-group.inline label {
+    margin-bottom: 0;
+    font-weight: bold;
+}
+
+.filter-form .form-group.inline input[type="text"],
+.filter-form .form-group.inline select {
+    width: auto;
+    min-width: 150px;
+    height: 38px;          /* TAK SAMO JAK W DODAWANIU */
+    padding: 8px;          /* TAK SAMO JAK W DODAWANIU */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Przyciski w filtrach – takie same jak .btn */
+.filter-form .btn {
+    padding: 8px 15px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+}
+.filters-row {
+    min-height: 70px;   /* stała wysokość całej sekcji filtrów */
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+
+
+/* Każdy element w jednej linii */
+.filters-row .form-group.inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+/* Inputy takie same jak w dodawaniu */
+.filters-row input[type="text"],
+.filters-row select {
+    height: 38px;             /* identycznie jak w dodawaniu */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 150px;
+    box-sizing: border-box;
+}
+
+/* SPECJALNIE dla "wyniki na stronę" — szerokość na 3 cyfry */
+.filters-row .results-select {
+    width: 60px;              /* idealnie na 15 / 25 / 50 / 100 */
+    min-width: 60px;
+}
+
+/* Przyciski takie same jak w dodawaniu */
+.filters-row .btn {
+    padding: 8px 15px;
+    font-size: 16px;
+    background-color: #003366;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none; /* Na wypadek gdyby to był link <a> */
+}
+/* 2. DODAJ TO: Efekt hover dla przycisków w filtrach */
+.filter-form .btn:hover,
+.filters-row .btn:hover {
+ filter: brightness(2);  /* Rozjaśniamy o 15% - efekt "podświetlenia" */
+    cursor: pointer;
+}
+
+
+/* --- ZMIANA: Pole treść wyższe o 30% (50px zamiast 38px) --- */
+.add-blok-inline-form .tresc-group textarea,
+.add-blok-inline-form .tresc-group input {
+    width: 100%;
+    height: 90px;          /* Wysokość zwiększona o 30% */
+    box-sizing: border-box; /* Żeby padding nie zmieniał wysokości */
+    padding: 8px;
+    /* WIĘKSZA CZCIONKA (standard to ok. 14-16px) */
+    padding: 10px;
+        font-family: Arial, sans-serif; /* Dla pewności, żeby pasowała do reszty */
+          resize: none;
+}
+/* --------------------------------------------------------- */
+
+.add-blok-inline-form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Kluczowa zmiana – label i input w jednej linii */
+.add-blok-inline-form .form-group.inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Treść = 40% szerokości zostaje bez zmian */
+.add-blok-inline-form .tresc-group {
+    flex: 0 0 25%;
+}
+
+
+
+/* Przycisk po prawej */
+.add-blok-inline-form .btn {
+    margin-left: auto;
+}

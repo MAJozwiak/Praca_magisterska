@@ -1,0 +1,123 @@
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>Grupy Podmiotów</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/grupy_podmiot.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Grupy Podmiotów</h1>
+           <div>
+        <a href="/" class="btn">Powrót</a>
+    </div>
+    </div>
+
+    <div class="form-container">
+    <div class="form-container">
+        <h2>Dodaj nową grupę podmiotów</h2>
+        <form method="post" class="add-form">
+            {% csrf_token %}
+            <div class="form-group inline">
+                <label for="{{ form.id_grupa.id_for_label }}">Grupa:</label>
+                {{ form.id_grupa }}
+            </div>
+          <div class="form-group inline">
+    <label for="id_podmiot">Podmiot:</label>
+    <select name="selected_podmioty" id="id_podmiot" class="form-control" required>
+        <option value="">---</option>
+        {% for podmiot in podmioty %}
+            <option value="{{ podmiot.id }}">
+                {{ podmiot.kod }} - {{ podmiot.nazwa }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+            <div>
+                <button type="submit" name="add_grupa_podmioty" class="btn">Dodaj</button>
+            </div>
+        </form>
+    </div>
+    <!-- Formularz filtrowania -->
+        <div class="form-container filters-row">
+        <div class="filters-left">
+        <h2>Filtruj grupy podmiotów</h2>
+        <form method="get" class="filter-form">
+
+            <div class="form-group inline">
+    <label for="grupa">Grupa:</label>
+    <input type="text" id="grupa" name="grupa" value="{{ grupa_filter }}" placeholder="Wpisz nazwę grupy...">
+</div>
+            <div>
+                <button type="submit" class="btn">Filtruj</button>
+                <a href="?" class="btn">Resetuj filtry</a>
+            </div>
+        </form>
+    </div>
+    <!-- Formularz wyboru liczby wyników na stronę -->
+   <div class="filters-right">
+             <form method="get">
+            <div class="form-group inline">
+                <label for="results_per_page">Wyniki na stronę:</label>
+                                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                    <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                    <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    </div>
+              </div>
+    <!-- Tabela z danymi -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Grupa</th>
+                    <th>Podmiot</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for grupa_podmioty in page_obj %}
+                    <tr>
+                        <td><strong>{{ grupa_podmioty.id_grupa.nazwa }}</strong></td>
+                        <td><strong>{{ grupa_podmioty.id_podmiotu.nazwa }}</strong></td>
+                        <td>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="grupa_podmioty_id" value="{{ grupa_podmioty.id }}">
+                                <button type="submit" name="delete_grupa_podmioty" class="btn">Usuń</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">Brak danych</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Paginacja -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if podmiot_filter %}&podmiot={{ podmiot_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">&laquo; pierwsza</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if podmiot_filter %}&podmiot={{ podmiot_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">poprzednia</a>
+            {% endif %}
+            <span class="current">
+                Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if podmiot_filter %}&podmiot={{ podmiot_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">następna</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if podmiot_filter %}&podmiot={{ podmiot_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">ostatnia</a>
+            {% endif %}
+        </span>
+    </div>
+   </div>
+</body>
+</html>

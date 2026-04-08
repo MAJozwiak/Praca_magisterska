@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generowanie formularzy</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Generowanie formularzy</h1>
+         <div>
+        <a href="/" class="btn">Powrót</a>
+    </div>
+    </div>
+
+    <div class="form-container">
+        <h2>Generowanie ankiet jakościowych na podstawie grupy</h2>
+        <form method="post" class="add-form">
+            {% csrf_token %}
+            <div class="form-group inline">
+                <label for="grupanaglowek_id">Grupa ankiet:</label>
+                <select id="grupanaglowek_id" name="grupanaglowek_id" class="form-control">
+                    {% for grupanaglowek in grupanagloweks %}
+                        <option value="{{ grupanaglowek.id }}">{{ grupanaglowek.nazwa }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" name="generuj" class="btn" onclick="return confirm('Wygenerowano ankiety z podanej grupy.')">Generuj</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

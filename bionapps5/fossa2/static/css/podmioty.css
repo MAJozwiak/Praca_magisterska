@@ -1,0 +1,32 @@
+/* Scroll pionowy tylko na tabeli */
+
+/* --- STICKY KOLUMNA 1: KOD --- */
+.table-wrapper th:nth-child(1),
+.table-wrapper td:nth-child(1) {
+    left: 0;
+    width: 120px;     /* stała szerokość Kodu */
+    z-index: 30;
+}
+
+/* --- STICKY KOLUMNA 2: NAZWA --- */
+.table-wrapper th:nth-child(2),
+.table-wrapper td:nth-child(2) {
+    left: 120px;      /* dokładnie szerokość kolumny Kod */
+    z-index: 25;
+    width: auto;      /* zajmuje resztę miejsca */
+}
+
+/* --- KOLUMNA 3: AKCJE (NIE sticky) --- */
+.table-wrapper th:nth-child(3),
+.table-wrapper td:nth-child(3) {
+    width: 140px;
+    text-align: right;
+}
+
+
+
+
+
+
+/* Wspólny wiersz filtrów */
+/* FILTRY – identyczne jak formularz dodawania */

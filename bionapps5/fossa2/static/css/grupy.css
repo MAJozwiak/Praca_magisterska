@@ -1,0 +1,26 @@
+.table-wrapper th:nth-child(1),
+.table-wrapper td:nth-child(1) {
+    left: 0;
+    width: 250px;
+    z-index: 30;
+}
+
+/* --- STICKY KOLUMNA 2: NAZWA --- */
+.table-wrapper th:nth-child(2),
+.table-wrapper td:nth-child(2) {
+    left: 120px;      /* dokładnie szerokość kolumny Kod */
+    z-index: 25;
+    width: 250px;      /* zajmuje resztę miejsca */
+}
+* --- STICKY KOLUMNA 2: NAZWA --- */
+.table-wrapper th:nth-child(3),
+.table-wrapper td:nth-child(3) {
+    left: 120px;      /* dokładnie szerokość kolumny Kod */
+    z-index: 25;
+    width: 250px;      /* zajmuje resztę miejsca */
+}
+.table-wrapper th:nth-child(4),
+.table-wrapper td:nth-child(4) {
+    width: 140px;
+    text-align: right;
+}

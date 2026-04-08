@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista Grup</title>
+    {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/grupy.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Grupy</h1>
+
+        <!-- SELEKTOR ROKU (Dodany) -->
+        <div style="margin: 0 20px;">
+            <form method="get" style="display: inline-block;">
+                <label style="color:white; margin-right: 5px;"><strong>Rok sprawozdawczy:</strong></label>
+                <select name="rok" onchange="this.form.submit()" style="padding: 5px; border-radius: 4px;">
+                    {% for o in okresy_wszystkie %}
+                        <option value="{{ o.rok }}" {% if o.rok == wybrany_okres.rok %}selected{% endif %}>
+                            {{ o.rok }} {% if o.czy_zamrozony %}(Zamrożony){% else %}(Bieżący){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="nazwa" value="{{ nazwa_filter }}">
+            </form>
+        </div>
+
+        <div><a href="/" class="btn">Powrót</a></div>
+    </div>
+
+    <div class="form-container">
+        <!-- FORMULARZ DODAWANIA (Tylko jeśli tryb edycji) -->
+        <div class="form-container">
+            <h2>Dodaj nową grupę</h2>
+            {% if czy_tryb_edycji %}
+            <form method="post" class="add-form">
+                {% csrf_token %}
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                <div class="form-group inline">
+                    <label>Nazwa:</label>
+                    {{ form.nazwa }}
+                    <button type="submit" name="add_grupanaglowek" class="btn">Dodaj</button>
+                </div>
+            </form>
+            {% else %}
+                <div style="color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 5px;">
+                    Tryb tylko do odczytu. Wybrany rok sprawozdawczy {{ wybrany_okres.rok }} jest zamrożony.
+                </div>
+            {% endif %}
+        </div>
+
+    <!-- Formularz filtrowania -->
+     <div class="form-container filters-row">
+    <div class="filters-left">
+        <h2>Lista grup</h2>
+        <form method="get" class="filter-form">
+            <div class="form-group inline">
+                <label for="nazwa">Nazwa:</label>
+                <input type="text" id="nazwa" name="nazwa" value="{{ nazwa_filter }}">
+
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn">Filtruj</button>
+                <a href="?" class="btn" >Resetuj</a>
+            </div>
+        </form>
+        <div class="filters-right">
+        <form method="get">
+            {% if nazwa_filter %}<input type="hidden" name="nazwa" value="{{ nazwa_filter }}">{% endif %}
+            {% if data_utworzenia_filter %}<input type="hidden" name="data_utworzenia" value="{{ data_utworzenia_filter }}">{% endif %}
+
+            <div class="form-group inline">
+                <label for="results_per_page">Wyniki na stronę:</label>
+                                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                        <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                        <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                        <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+            </div>
+        </form>
+    </div>
+    </div>
+         </div>
+    <!-- Formularz wyboru liczby wyników na stronę -->
+
+    <!-- Tabela z danymi -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nazwa</th>
+                     <th>Obowiązuje od</th>
+                     <th>Obowiązuje do</th>
+                     <th></th>
+                </tr>
+            </thead>
+
+            <!-- DODANE-->
+            <tbody>
+                {% for grupanaglowek in page_obj %}
+                    <tr>
+                        <td><strong>{{ grupanaglowek.nazwa }}</strong></td>
+                        <td>{{ grupanaglowek.data_od|date:"d.m.Y" }}</td>
+                        <td>{{ grupanaglowek.data_do|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if czy_tryb_edycji %}
+                            <form method="post" style="margin:0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                                <input type="hidden" name="grupanaglowek_id" value="{{ grupanaglowek.id }}">
+                                <button type="submit" name="delete_grupanaglowek" class="btn" onclick="return confirm('Czy na pewno chcesz usunąć tę grupę z roku {{ wybrany_okres.rok }}?')">
+                                    Usuń
+                                </button>
+                            </form>
+                            {% else %}
+                                <span style="color: gray; font-style: italic;">Tylko odczyt</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px;">
+                            Brak grup dla roku {{ wybrany_okres.rok }}.
+                            {% if czy_tryb_edycji %}Dodaj nowe grupy dla tego okresu.{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Paginacja -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">&laquo; pierwsza</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if data_utworzenia_filter %}&data_utworzenia={{ data_utworzenia_filter }}{% endif %}{% if nazwa_filter %}&data_utworzenia={{ data_utworzenia_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">poprzednia</a>
+            {% endif %}
+            <span class="current">
+                Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">następna</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">&laquo; ostatnia &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+            </div>
+</body>
+</html>

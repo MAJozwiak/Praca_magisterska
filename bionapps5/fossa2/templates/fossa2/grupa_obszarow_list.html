@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista Grup Obszarów</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/podmioty.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Grupy obszarów</h1>
+        <div>
+            <a href="/" class="btn">Powrót</a>
+        </div>
+    </div>
+
+    <div class="form-container">
+
+        <div class="form-container">
+            <h2>Dodaj nową grupę obszarów</h2>
+            <form method="post" class="add-form">
+                {% csrf_token %}
+                <div class="form-group inline">
+                    <label>Kod:</label>
+                    {{ form.kod }}
+                </div>
+                <div class="form-group inline">
+                    <label>Nazwa:</label>
+                    {{ form.nazwa }}
+                </div>
+                <div>
+                    <button type="submit" name="add_grupa" class="btn">Dodaj</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-container filters-row">
+
+            <div class="filters-left">
+                <h2>Lista grup obszarów</h2>
+                <form method="get" class="filter-form">
+                    <div class="form-group inline">
+                        <label for="kod">Kod:</label>
+                        <input type="text" id="kod" name="kod" value="{{ kod_filter }}">
+                    </div>
+                    <div class="form-group inline">
+                        <label for="nazwa">Nazwa:</label>
+                        <input type="text" id="nazwa" name="nazwa" value="{{ nazwa_filter }}">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn">Filtruj</button>
+                        <a href="?" class="btn">Resetuj</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="filters-right">
+                <form method="get">
+                    {% if kod_filter %}<input type="hidden" name="kod" value="{{ kod_filter }}">{% endif %}
+                    {% if nazwa_filter %}<input type="hidden" name="nazwa" value="{{ nazwa_filter }}">{% endif %}
+
+                    <div class="form-group inline">
+                        <label for="results_per_page">Wyniki na stronę:</label>
+                        <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                            <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                            <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                            <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                            <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kod</th>
+                        <th>Nazwa</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grupa in page_obj %}
+                    <tr>
+                        <td><strong>{{ grupa.kod }}</strong></td>
+                        <td><strong>{{ grupa.nazwa }}</strong></td>
+                        <td>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="grupa_id" value="{{ grupa.id }}">
+                                <button type="submit" name="delete_grupa" class="btn"
+                                        onclick="return confirm('Czy na pewno chcesz usunąć ten rekord?')">
+                                    Usuń
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">Brak grup obszarów do wyświetlenia</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginacja -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">&laquo; pierwsza</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">następna</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">ostatnia &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+
+    </div>
+</body>
+</html>

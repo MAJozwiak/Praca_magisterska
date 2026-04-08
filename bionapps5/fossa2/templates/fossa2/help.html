@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista Bloków</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bloki.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Bloki</h1>
+
+        <!-- SELEKTOR ROKU SPRAWOZDAWCZEGO -->
+        <div style="margin: 0 20px;">
+            <form method="get" style="display: inline-block;">
+                <label for="rok" style="color:white; margin-right: 5px;"><strong>Rok sprawozdawczy:</strong></label>
+                <select name="rok" id="rok" onchange="this.form.submit()" style="padding: 5px; border-radius: 4px;">
+                    {% for o in okresy_wszystkie %}
+                        <option value="{{ o.rok }}" {% if o.rok == wybrany_okres.rok %}selected{% endif %}>
+                            {{ o.rok }} {% if o.czy_zamrozony %}(Zamrożony){% else %}(Bieżący){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <!-- Te ukryte pola sprawiają, że jak zmienisz rok, nie zgubisz filtrów! -->
+                <input type="hidden" name="id_obszaru" value="{{ id_obszaru_filter|default:'' }}">
+                <input type="hidden" name="kod" value="{{ kod_filter|default:'' }}">
+                <input type="hidden" name="tresc" value="{{ tresc_filter|default:'' }}">
+                <input type="hidden" name="results_per_page" value="{{ results_per_page }}">
+            </form>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <!-- Usunięto stąd przycisk Zamroź, został tylko powrót -->
+            <a href="/" class="btn">Powrót</a>
+        </div>
+    </div>
+
+
+    <!-- PROSTOKĄT 1: DODAWANIE -->
+    <div class="form-container">
+        <h2>Dodaj nowy Blok</h2>
+
+        <!-- LOGIKA: Wyświetl formularz tylko, jeśli rok NIE JEST zamrożony -->
+        {% if czy_tryb_edycji %}
+            <form method="post" class="add-blok-inline-form">
+                {% csrf_token %}
+                <!-- Przekazujemy rok, w którym dodajemy blok -->
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+
+                <div class="form-group inline">
+                    <label>Obszar:</label>
+                    {{ form.id_obszaru }}
+                </div>
+
+                <div class="form-group inline tresc-group">
+                    <label>Treść:</label>
+                    {{ form.tresc }}
+                </div>
+
+                <div class="form-group inline">
+                    <button type="submit" name="add_blok" class="btn">Dodaj</button>
+                </div>
+            </form>
+        {% else %}
+            <!-- Zamiast formularza informujemy użytkownika, że okres jest zamknięty -->
+            <div style="color: #856404; background-color: #fff3cd; border-color: #ffeeba; padding: 10px; border-radius: 5px;">
+                <strong>Tryb tylko do odczytu.</strong> Wybrany rok sprawozdawczy ({{ wybrany_okres.rok|default:"Brak" }}) jest zamrożony.
+                Aby wprowadzić zmiany, musisz przełączyć się na bieżący rok sprawozdawczy.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-container filters-row">
+        <!-- PROSTOKĄT 2: FILTROWANIE -->
+        <div class="filters-left">
+            <h2>Filtruj listę bloków</h2>
+            <form method="get" class="filter-form">
+                <!-- Zawsze trzymamy rok sprawozdawczy -->
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+
+                <div class="form-group inline">
+                    <label for="id_obszaru">Obszar:</label>
+                    <input type="text" id="id_obszaru" name="id_obszaru" value="{{ id_obszaru_filter|default:'' }}">
+                </div>
+                <div class="form-group inline">
+                    <label for="kod">Blok:</label>
+                    <input type="text" id="kod" name="kod" value="{{ kod_filter|default:'' }}">
+                </div>
+                <div class="form-group inline">
+                    <label for="tresc">Treść:</label>
+                    <input type="text" id="tresc" name="tresc" value="{{ tresc_filter|default:'' }}">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn">Filtruj</button>
+                    <!-- Resetowanie filtrów, ale pozostajemy w obecnym roku -->
+                    <a href="?rok={{ wybrany_okres.rok }}" class="btn">Resetuj</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- PROSTOKĄT 3: WYNIKI NA STRONĘ -->
+        <div class="filters-right">
+            <form method="get">
+                <!-- Zawsze trzymamy parametry, aby nic nie gubić przy zmianie paginacji -->
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                <input type="hidden" name="id_obszaru" value="{{ id_obszaru_filter|default:'' }}">
+                <input type="hidden" name="kod" value="{{ kod_filter|default:'' }}">
+                <input type="hidden" name="tresc" value="{{ tresc_filter|default:'' }}">
+
+                <div class="form-group inline">
+                    <label for="results_per_page">Wyniki na stronę:</label>
+                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                        <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                        <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                        <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROSTOKĄT 4: TABELA -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-big">Obszar</th>
+                    <th class="col-big">Blok</th>
+                    <th class="col-truncate">Treść</th>
+                    <th>Obowiązuje Od</th>
+                    <th>Obowiązuje Do</th>
+                    <th class="col-actions">Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blok in page_obj %}
+                    <tr>
+                        <td><strong>{{ blok.id_obszaru.kod }}</strong></td>
+                        <td><strong>{{ blok.kod }}</strong></td>
+                        <td class="tresc-popup" title="{{ blok.tresc }}"><strong>{{ blok.tresc }}</strong></td>
+
+                        <!-- WYŚWIETLANIE DAT -->
+                        <td>{{ blok.data_od|date:"d.m.Y" }}</td>
+                        <td>
+                            {% if blok.data_do.year == 9999 %}
+                                <span style="color: black; font-weight: bold;">-</span>
+                            {% else %}
+                                <span style="color: black;">{{ blok.data_do|date:"d.m.Y" }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="col-actions">
+                            {% if czy_tryb_edycji %}
+                                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                    <!-- PRZYCISK MODYFIKUJ -->
+                                    <button type="button" class="btn btn-danger" style="width: 95px; padding: 5px 0; text-align: center;" onclick="openEditModal('{{ blok.id }}', '{{ blok.tresc|escapejs }}')">
+                                        Modyfikuj
+                                    </button>
+
+                                    <!-- PRZYCISK USUŃ -->
+                                    <form method="post" style="margin: 0;" onsubmit="return confirm('Czy na pewno chcesz usunąć ten rekord?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                                        <input type="hidden" name="blok_id" value="{{ blok.id }}">
+                                        <button type="submit" name="delete_blok" class="btn btn-danger" style="width: 95px; padding: 5px 0; text-align: center;">
+                                            Usuń
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span style="color: gray; font-size: 12px; font-style: italic;">Tylko odczyt</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">Brak bloków w wybranym roku sprawozdawczym.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PROSTOKĄT 5: PAGINACJA -->
+    <div class="pagination">
+        <div class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1&rok={{ wybrany_okres.rok }}{% if id_obszaru_filter %}&id_obszaru={{ id_obszaru_filter }}{% endif %}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if tresc_filter %}&tresc={{ tresc_filter }}{% endif %}&results_per_page={{ results_per_page }}" class="btn" style="padding: 5px 10px; font-size: 12px;">&laquo; pierwsza</a>
+            {% endif %}
+
+            <span class="current">Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&rok={{ wybrany_okres.rok }}{% if id_obszaru_filter %}&id_obszaru={{ id_obszaru_filter }}{% endif %}{% if kod_filter %}&kod={{ kod_filter }}{% endif %}{% if tresc_filter %}&tresc={{ tresc_filter }}{% endif %}&results_per_page={{ results_per_page }}" class="btn" style="padding: 5px 10px; font-size: 12px;">następna &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- UKRYTE OKIENKO MODALNE DO EDYCJI -->
+    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; width: 400px; margin: 100px auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            <h3>Modyfikuj Treść Bloku</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                <!-- Ukryte ID bloku, który aktualnie edytujemy -->
+                <input type="hidden" name="blok_id" id="modal_blok_id" value="">
+
+                <div class="form-group">
+                    <label for="modal_tresc">Nowa treść:</label><br>
+                    <textarea name="tresc" id="modal_tresc" rows="4" style="width: 100%; padding: 5px;"></textarea>
+                </div>
+
+                <div style="margin-top: 15px; text-align: right;">
+                    <button type="button" class="btn" style="background-color: #ccc; color: black;" onclick="closeEditModal()">Anuluj</button>
+                    <button type="submit" name="edit_blok" class="btn btn-danger">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Skrypt sterujący okienkiem -->
+    <script>
+        function openEditModal(blokId, staraTresc) {
+            document.getElementById('modal_blok_id').value = blokId;
+            document.getElementById('modal_tresc').value = staraTresc;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

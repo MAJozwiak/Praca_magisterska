@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#EAEEF2] text-slate-900 antialiased overflow-hidden;
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+  }
+}
+
+@layer components {
+  /* GŁÓWNY KONTENER */
+  .app-container { @apply flex flex-col h-screen w-full; }
+
+  /* IDENTYCZNY WYSOKI NAGŁÓWEK DLA WSZYSTKICH */
+ .app-header-main {
+    @apply h-20 bg-[#003366] text-white flex items-center justify-center shadow-md shrink-0 relative px-8 w-full;
+  }
+
+  .header-centered-title {
+    @apply text-xl lg:text-2xl font-bold tracking-widest uppercase text-center m-0;
+  }
+
+  /* PRZYCISK POWROTU (pozycjonowany absolutnie, żeby nie psuł środka) */
+  .btn-header-back {
+    @apply absolute right-8 text-[10px] font-bold border border-white/30 px-4 py-2 rounded
+           hover:bg-white hover:text-[#003366] transition-all uppercase tracking-widest;
+  }
+
+  /* GŁÓWNA TREŚĆ */
+  .app-main { @apply flex-1 overflow-hidden w-full p-4 lg:p-6; }
+
+  /* KARTY (DODAJ / FILTRUJ) */
+  .modern-card { @apply bg-white rounded shadow-sm border border-slate-300 overflow-hidden flex flex-col shrink-0 mb-4; }
+  .card-accent-bar { @apply h-1 bg-[#003366] w-full; }
+  .card-content { @apply px-6 py-3; }
+  .card-title { @apply text-[11px] font-black text-[#003366] uppercase tracking-wider mb-2; }
+
+  /* FORMULARZE */
+  .input-label { @apply block text-[10px] font-bold text-slate-400 uppercase mb-1; }
+  .input-field { @apply w-full bg-[#F8FAFC] border border-slate-200 rounded px-3 py-2 text-sm font-bold outline-none focus:border-[#003366] transition-all; }
+  .btn-navy { @apply bg-[#003366] text-white h-[38px] px-8 rounded font-bold text-xs uppercase hover:bg-[#002244] transition-all; }
+
+  /* TABELA */
+ .table-container {
+    @apply bg-white rounded border border-slate-300 shadow-md overflow-hidden flex flex-col flex-1;
+  }  .modern-table { @apply w-full table-fixed border-separate border-spacing-0; }
+  .modern-table th { @apply bg-[#003366] px-6 py-3 text-left text-[11px] font-bold text-white uppercase sticky top-0 z-10; }
+  .modern-table td { @apply px-6 py-3 text-[13px] border-b border-slate-100 font-medium text-slate-700; }
+  .btn-delete { @apply text-[10px] font-black text-slate-300 hover:text-red-600 cursor-pointer uppercase underline; }
+
+  /* STOPKA */
+  .app-footer-main { @apply h-10 bg-[#003366] text-white/30 flex items-center justify-center text-[9px] font-bold tracking-[0.5em] shrink-0 uppercase; }
+
+  /* SCROLLBAR */
+  .custom-scrollbar::-webkit-scrollbar { @apply w-2; }
+  .custom-scrollbar::-webkit-scrollbar-track { @apply bg-slate-100; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { @apply bg-[#003366]/30 rounded hover:bg-[#003366]; }
+}

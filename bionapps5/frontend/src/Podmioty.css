@@ -1,0 +1,45 @@
+/* Header dla słowników (niski) */
+.dict-header {
+  @apply h-12 bg-[#003366] text-white flex items-center px-8 shadow-sm shrink-0 justify-between;
+}
+
+.dict-content {
+  @apply p-4 h-full flex flex-col gap-4 w-[98%] mx-auto;
+}
+
+/* Karty formularzy */
+.dict-card {
+  @apply bg-white rounded shadow-sm border border-slate-300 overflow-hidden shrink-0;
+}
+
+.dict-card-bar { @apply h-1 bg-[#003366] w-full; }
+
+.dict-card-body { @apply px-6 py-3; }
+
+.dict-label { @apply block text-[10px] font-bold text-slate-400 uppercase mb-1; }
+
+.dict-input {
+  @apply w-full bg-[#F8FAFC] border border-slate-200 rounded px-3 py-2 text-sm font-bold outline-none focus:border-[#003366];
+}
+
+.dict-btn-add {
+  @apply bg-[#003366] text-white h-[38px] px-8 rounded font-bold text-xs uppercase hover:bg-[#002244] transition-all;
+}
+
+/* Tabela */
+.dict-table-container {
+  @apply bg-white rounded border border-slate-300 shadow-md overflow-hidden flex flex-col flex-1;
+}
+
+.dict-table { @apply w-full border-separate border-spacing-0; }
+.dict-table th {
+  @apply bg-[#003366] px-6 py-3 text-left text-[11px] font-bold text-white uppercase sticky top-0 z-10;
+}
+
+.dict-table td {
+  @apply px-6 py-3 text-[13px] border-b border-slate-100 font-medium text-slate-700;
+}
+
+.dict-btn-delete {
+  @apply text-[10px] font-bold text-slate-300 hover:text-red-600 cursor-pointer uppercase underline;
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista Ankiet</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/ankiety.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Ankiety</h1>
+
+        <!-- SELEKTOR ROKU -->
+        <div style="margin: 0 20px;">
+            <form method="get" style="display: inline-block;">
+                <label style="color:white; margin-right: 5px;"><strong>Rok sprawozdawczy:</strong></label>
+                <select name="rok" onchange="this.form.submit()" style="padding: 5px; border-radius: 4px;">
+                    {% for o in okresy_wszystkie %}
+                        <option value="{{ o.rok }}" {% if o.rok == wybrany_okres.rok %}selected{% endif %}>
+                            {{ o.rok }} {% if o.czy_zamrozony %}(Zamrożony){% else %}(Bieżący){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="nazwa" value="{{ nazwa_filter }}">
+                <input type="hidden" name="grupa" value="{{ grupa_filter }}">
+            </form>
+        </div>
+
+        <div><a href="/" class="btn">Powrót</a></div>
+    </div>
+
+
+<div class="form-container">
+<div class="form-container">
+
+    <h2>Dodaj nowy nagłówek ankiety</h2>
+    <form method="post" action="{% url 'ankieta_naglowek_list' %}" class="filter-form">
+        {% csrf_token %}
+
+        <div class="form-group inline">
+            <input type="hidden" name="add_ankieta" value="1">
+
+            <!-- RĘCZNE WYWOŁANIE PÓL ZAMIAST as_p -->
+            <label>Nazwa:</label>
+            {{ form.nazwa }}
+
+            <label>Grupa:</label>
+            {{ form.id_grupa }}
+
+            <button type="submit" class="btn">Dodaj</button>
+        </div>
+    </form>
+</div>
+
+<!-- Filtry -->
+<div class="form-container filters-row">
+    <div class="filters-left">
+    <h2>Filtry</h2>
+    <form method="get" action="{% url 'ankieta_naglowek_list' %}" class="filter-form">
+            <div class="form-group inline">
+                <label for="nazwa">Nazwa:</label>
+                <input type="text" id="nazwa" name="nazwa" value="{{ nazwa_filter }}">
+            </div>
+            <div class="form-group inline">
+                <label for="grupa">Grupa:</label>
+                <select id="grupa" name="grupa">
+                    <option value="">Wszystkie grupy</option>
+                    {% for grupa in grupy %}
+                        <option value="{{ grupa.id }}" {% if grupa.id|stringformat:"s" == grupa_filter %}selected{% endif %}>{{ grupa.nazwa }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn">Filtruj</button>
+                <a href="?" class="btn">Resetuj filtry</a>
+            </div>
+
+        </form>
+    </div>
+      <div class="filters-right">
+        <form method="get">
+            <div class="form-group inline">
+                <label for="results_per_page">Wyniki na stronę:</label>
+                                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                    <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                    <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabela z danymi -->
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Grupa</th>
+                <th>Od</th>
+                <th>Do</th>
+                <th></th>
+            </tr>
+        </thead>
+         <tbody>
+                        {% for ankieta in page_obj %}
+                            <tr>
+                                <td><strong>{{ ankieta.nazwa }}</strong></td>
+                                <td><strong>{{ ankieta.id_grupa.nazwa }}</strong></td>
+                                <td>{{ ankieta.data_od|date:"d.m.Y" }}</td>
+                                <td>{{ ankieta.data_do|date:"d.m.Y" }}</td>
+                                <td>
+                                    {% if czy_tryb_edycji %}
+                                     <form method="post" style="display: inline;">
+                                         {% csrf_token %}
+                                         <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                                         <input type="hidden" name="ankieta_id" value="{{ ankieta.id }}">
+                                         <button type="submit" name="delete_ankieta" class="btn" onclick="return confirm('Usunąć ankietę?')">Usuń</button>
+                                     </form>
+                                     {% endif %}
+                                 </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5">Brak ankiet dla roku {{ wybrany_okres.rok }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+<!-- Paginacja -->
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">&laquo; pierwsza</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">poprzednia</a>
+        {% endif %}
+        <span class="current">
+            Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}.
+        </span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">następna</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if nazwa_filter %}&nazwa={{ nazwa_filter }}{% endif %}{% if grupa_filter %}&grupa={{ grupa_filter }}{% endif %}{% if results_per_page %}&results_per_page={{ results_per_page }}{% endif %}">ostatnia &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+ </div>
+</body>

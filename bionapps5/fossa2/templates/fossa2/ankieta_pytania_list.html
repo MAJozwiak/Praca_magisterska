@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zarządzanie Ankietami - Podzapytania</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/ankiety_podzapytania.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Zarządzanie pytaniami w ankietach</h1>
+        <div><a href="/" class="btn">Powrót</a></div>
+    </div>
+<div class="form-container">
+    <div class="form-container">
+
+    <div class="mode-switcher-global">
+        <div class="mode-switcher">
+            <button type="button" id="btn-mode-add" class="btn" onclick="switchMode('add')">
+                1. BUDOWANIE ANKIETY
+            </button>
+            <button type="button" id="btn-mode-list" class="btn" onclick="switchMode('list')">
+                2. PODGLĄD ANKIETY
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <!-- SEKCJA A: BUDOWANIE -->
+    <div id="section-add" class="content-section">
+
+
+    <!-- TEKST NAD RESZTĄ -->
+
+
+    <!-- LINIA Z ELEMENTAMI (WYNIKI, ANKIETA, PRZYCISK) -->
+
+<div class="form-container">
+    <div class="filters-left">
+        <h2>Filtruj listę Podzapytań</h2>
+        <form method="get" class="filter-form">
+
+            <div class="form-group inline">
+                <label for="obszar">Obszar:</label>
+                <input type="text" id="obszar" name="obszar" value="{{ obszar_filter }}">
+            </div>
+
+            <div class="form-group inline">
+                <label for="blok">Blok:</label>
+                <input type="text" id="blok" name="blok" value="{{ blok_filter }}">
+            </div>
+
+            <div class="form-group inline">
+                <label for="podblok">Podblok:</label>
+                <input type="text" id="podblok" name="podblok" value="{{ podblok_filter }}">
+            </div>
+
+            <div class="form-group inline">
+                <label for="pytanie">Pytanie:</label>
+                <input type="text" id="pytanie" name="pytanie" value="{{ pytanie_filter }}">
+            </div>
+
+            <div class="form-group inline">
+                <label for="podzapytanie">Podzapytanie:</label>
+                <input type="text" id="podzapytanie" name="podzapytanie" value="{{ podzapytanie_filter }}">
+            </div>
+
+            <div class="form-group inline">
+                <label for="tresc">Treść:</label>
+                <input type="text" id="tresc" name="tresc" value="{{ tresc_filter }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn">Filtruj</button>
+                <a href="?" class="btn">Resetuj</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="form-container pancerny-toolbar">
+    <div class="toolbar-actions-row">
+
+        <h2 class="toolbar-title">Wybierz ankietę docelową i pytania</h2>
+      <form method="get">
+            <div class="form-group inline">
+                <label for="results_per_page">Wyniki na stronę:</label>
+                                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                    <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                    <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+            </div>
+        </form>
+
+        <!-- Formularz POST - display: contents zachowuje układ inline -->
+        <form method="post" style="display: contents;">
+            {% csrf_token %}
+            <div class="form-group inline">
+                <label>Ankieta:</label>
+                <div class="select-wrapper">{{ form.id_ankieta_naglowek }}</div>
+            </div>
+
+            <div class="form-group inline">
+                <button type="button" class="btn btn-alt" onclick="smartToggle()">Zaznacz / Odznacz wszystkie</button>
+            </div>
+
+            <!-- Tu pętla tabeli i na samym dole zamknięcie </form> -->
+     </div>
+
+</div>
+
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Wybór</th>
+                            <th>Obszar</th>
+                            <th>Blok</th>
+                            <th>Podblok</th>
+                            <th>Pytanie</th>
+                            <th>Podzapytanie</th>
+                            <th>Treść Podzapytania</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pz in wszystkie_podzapytania %}
+                        <tr>
+                            <td><input type="checkbox" name="wybrane_podzapytania" value="{{ pz.id }}"></td>
+                            <td><strong>{{ pz.id_pytania.id_podbloku.id_bloku.id_obszaru.kod }}</strong></td>
+                            <td><strong>{{ pz.id_pytania.id_podbloku.id_bloku.kod }}</strong></td>
+                            <td><strong>{{ pz.id_pytania.id_podbloku.kod }}</strong></td>
+                            <td><strong>{{ pz.id_pytania.kod }}</strong></td>
+                            <td><strong>{{ pz.kod }}</strong></td>
+                            <td class="tresc-popup" title="{{ pz.tresc }}"><strong>{{ pz.tresc }}</strong></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7">Brak dostępnych podzapytań.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <button type="submit" name="add_ankieta_pytania" class="btn btn-save-mass">
+                    Dodaj zaznaczone pytania do ankiety
+                </button>
+            </div>
+            </form> <!-- Koniec Formularza POST -->
+
+            <!-- Paginacja Sekcji A -->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if wszystkie_podzapytania.has_previous %}
+                        <a href="?page_add=1&results_per_page={{ results_per_page }}">&laquo; pierwsza</a>
+                        <a href="?page_add={{ wszystkie_podzapytania.previous_page_number }}&results_per_page={{ results_per_page }}">poprzednia</a>
+                    {% endif %}
+                    <span class="current">Strona {{ wszystkie_podzapytania.number }} z {{ wszystkie_podzapytania.paginator.num_pages }}</span>
+                    {% if wszystkie_podzapytania.has_next %}
+                        <a href="?page_add={{ wszystkie_podzapytania.next_page_number }}&results_per_page={{ results_per_page }}">następna</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+      <!-- Koniec form-container dla Sekcji A -->
+
+    <!-- SEKCJA B: PODGLĄD -->
+    <div id="section-list" class="content-section" style="display: none;">
+        <div class="form-container pancerny-toolbar">
+            <h2 class="toolbar-title">Filtruj zawartość ankiet</h2>
+            <div class="toolbar-actions-row">
+
+
+                <form method="get" style="display: contents;">
+                    <div class="form-group inline">
+                        <label>Ankieta:</label>
+                        <input type="text" name="ankieta" value="{{ ankieta_filter }}">
+                    </div>
+
+                    <div>
+                        <button type="submit" class="btn">Filtruj</button>
+                        <button type="button" class="btn" onclick="resetFilters()">Resetuj</button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>Ankieta</th>
+                    <th>Obszar</th>
+                    <th>Blok</th>
+                    <th>Podblok</th>
+                    <th>Pytanie</th>
+                    <th>Podzapytanie</th>
+                    <th>Treść</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in page_obj %}
+                <tr>
+                    <td><strong>{{ item.id_ankieta_naglowek.nazwa }}</strong></td>
+                    <td><strong>{{ item.id_podzapytania.id_pytania.id_podbloku.id_bloku.id_obszaru.kod }}</strong></td>
+                    <td><strong>{{ item.id_podzapytania.id_pytania.id_podbloku.id_bloku.kod }}</strong></td>
+                    <td><strong>{{ item.id_podzapytania.id_pytania.id_podbloku.kod }}</strong></td>
+                    <td><strong>{{ item.id_podzapytania.id_pytania.kod }}</strong></td>
+                    <td><strong>{{ item.id_podzapytania.kod }}</strong></td>
+                    <td class="tresc-popup" title="{{ item.id_podzapytania.tresc }}">
+    <strong>{{ item.id_podzapytania.tresc }}</strong>
+</td>
+                    <td>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="ankietapytania_id" value="{{ item.id }}">
+                            <button type="submit" name="delete_ankieta_pytania" class="btn"
+                                    onclick="return confirm('Usunąć?')">Usuń
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div> <!-- Koniec form-container dla Sekcji B -->
+    </div>
+
+
+    <script>
+    function switchMode(mode) {
+        const secAdd = document.getElementById('section-add');
+        const secList = document.getElementById('section-list');
+        const btnAdd = document.getElementById('btn-mode-add');
+        const btnList = document.getElementById('btn-mode-list');
+
+        if (mode === 'add') {
+            secAdd.style.display = 'block';
+            secList.style.display = 'none';
+            btnAdd.classList.add('active');
+            btnList.classList.remove('active');
+        } else {
+            secAdd.style.display = 'none';
+            secList.style.display = 'block';
+            btnAdd.classList.remove('active');
+            btnList.classList.add('active');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasFilters = urlParams.has('page') || urlParams.has('ankieta');
+        const forceMode = urlParams.get('mode');
+
+        if (hasFilters || forceMode === 'list') {
+            switchMode('list');
+        } else {
+            switchMode('add');
+        }
+    });
+
+    function smartToggle() {
+        const checkboxes = document.getElementsByName('wybrane_podzapytania');
+        let anyUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+        checkboxes.forEach(cb => cb.checked = anyUnchecked);
+    }
+    </script>
+<script>
+function resetFilters() {
+    // Pobierz wszystkie inputy w formularzu
+    const form = document.querySelector('#section-list form'); // dostosuj selektor, jeśli potrzebne
+    form.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+    form.querySelector('button[type="submit"]').click(); // opcjonalnie od razu wyślij formularz
+}
+</script>
+</body>
+</html>

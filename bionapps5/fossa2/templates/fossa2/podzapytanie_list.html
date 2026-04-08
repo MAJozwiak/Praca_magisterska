@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Podzapytań</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/podzapytanie.css' %}">
+</head>
+<body>
+    <div class="header">
+        <h1>Podzapytania</h1>
+
+        <!-- SELEKTOR ROKU -->
+        <div style="margin: 0 20px;">
+            <form method="get" style="display: inline-block;">
+                <label for="rok" style="color:white; margin-right: 5px;"><strong>Rok sprawozdawczy:</strong></label>
+                <select name="rok" id="rok" onchange="this.form.submit()" style="padding: 5px; border-radius: 4px;">
+                    {% for o in okresy_wszystkie %}
+                        <option value="{{ o.rok }}" {% if o.rok == wybrany_okres.rok %}selected{% endif %}>
+                            {{ o.rok }} {% if o.czy_zamrozony %}(Zamrożony){% else %}(Bieżący){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="id_obszaru" value="{{ id_obszaru_filter }}">
+                <input type="hidden" name="kod" value="{{ kod_filter }}">
+                <input type="hidden" name="results_per_page" value="{{ results_per_page }}">
+            </form>
+        </div>
+
+        <div><a href="/" class="btn">Powrót</a></div>
+    </div>
+
+    <div class="form-container">
+        <div class="form-container">
+            <h2>Dodaj nowe Podzapytanie</h2>
+            {% if czy_tryb_edycji %}
+            <form method="post" id="podzapytanieForm"
+                  data-bloki-url="{% url 'ajax_load_bloki' %}"
+                  data-podbloki-url="{% url 'ajax_load_podbloki' %}"
+                  data-pytania-url="{% url 'ajax_load_pytania' %}"
+                  class="add-blok-inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+
+                <div class="form-group inline"><label>Obszar:</label><div>{{ form.id_obszaru }}</div></div>
+                <div class="form-group inline"><label>Blok:</label><div>{{ form.id_bloku }}</div></div>
+                <div class="form-group inline"><label>Podblok:</label><div>{{ form.id_podbloku }}</div></div>
+                <div class="form-group inline"><label>Pytanie:</label><div>{{ form.id_pytania }}</div></div>
+                <div class="form-group inline tresc-group"><label>Treść:</label>{{ form.tresc }}</div>
+                <div class="form-group inline tresc-group"><label>Wytyczne:</label>{{ form.wytyczne }}</div>
+                <div class="form-group inline"><label>Oblig:</label>{{ form.obligatoryjne }}</div>
+                <div class="form-group inline"><button type="submit" name="add_podzapytanie" class="btn">Dodaj</button></div>
+            </form>
+            {% else %}
+            <div style="color: #856404; background-color: #fff3cd; padding: 10px; border-radius: 5px;">
+                <strong>Tryb tylko do odczytu.</strong> Rok {{ wybrany_okres.rok }} jest zamrożony.
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- FILTROWANIE -->
+         <!-- FORMULARZ FILTROWANIA -->
+    <div class="form-container filters-row">
+        <div class="filters-left">
+            <h2>Filtruj listę Podzapytań</h2>
+            <form method="get" class="filter-form">
+                  <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+    <input type="hidden" name="results_per_page" value="{{ results_per_page }}">
+                <div class="form-group inline">
+                    <label for="id_obszaru">Obszar:</label>
+                    <input type="text" id="id_obszaru" name="id_obszaru" value="{{ id_obszaru_filter }}" >
+                </div>
+                <div class="form-group inline">
+                    <label for="id_bloku">Blok:</label>
+                    <input type="text" id="id_bloku" name="id_bloku" value="{{ id_bloku_filter }}">
+                </div>
+                <div class="form-group inline">
+                    <label for="id_podbloku">Podblok:</label>
+                    <input type="text" id="id_podbloku" name="id_podbloku" value="{{ id_podbloku_filter }}">
+                </div>
+                <div class="form-group inline">
+                    <label for="id_pytania">Pytanie:</label>
+                    <input type="text" id="id_pytania" name="id_pytania" value="{{ id_pytania_filter }}">
+                </div>
+                <div class="form-group inline">
+                    <label for="kod">Podzapytanie:</label>
+                    <input type="text" id="kod" name="kod" value="{{ kod_filter }}">
+                </div>
+                  <div class="form-group inline">
+    <label for="tresc">Treść:</label>
+    <!-- Zmieniono id, name i value -->
+    <input type="text" id="tresc" name="tresc" value="{{ tresc_filter }}">
+</div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn">Filtruj</button>
+                    <a href="?rok={{ wybrany_okres.rok }}" class="btn">Resetuj</a>
+                </div>
+            </form>
+        </div>
+          <div class="filters-right">
+             <form method="get">
+            <div class="form-group inline">
+                <label for="results_per_page">Wyniki na stronę:</label>
+                                    <select id="results_per_page" name="results_per_page" class="results-select" onchange="this.form.submit()">
+                    <option value="15" {% if results_per_page == 15 %}selected{% endif %}>15</option>
+                    <option value="25" {% if results_per_page == 25 or not results_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if results_per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if results_per_page == 100 %}selected{% endif %}>100</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    </div>
+
+        <!-- TABELA -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Obszar</th>
+                    <th>Blok</th>
+                    <th>Podblok</th>
+                    <th>Pytanie</th>
+                    <th>Podzapytanie</th>
+                    <th>Treść</th>
+                    <th>Wytyczne</th>
+                    <th>Obligatoryjne</th>
+                        <th>Data od</th>
+                        <th>Data do</th>
+                        <th></th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pz in page_obj %}
+                    <tr>
+                       <td><strong>{{ pz.id_pytania.id_podbloku.id_bloku.id_obszaru.kod }}</strong></td>
+                    <td><strong>{{ pz.id_pytania.id_podbloku.id_bloku.kod }}</strong></td>
+                    <td><strong>{{ pz.id_pytania.id_podbloku.kod }}</strong></td>
+                    <td><strong>{{ pz.id_pytania.kod }}</strong></td>
+                    <td><strong>{{ pz.kod }}</strong></td>
+                    <td class="tresc-popup" title="{{ pz.tresc }}"><strong>{{ pz.tresc }}</strong></td>
+                    <td class="tresc-popup" title="{{ pz.wytyczne }}"><strong>{{ pz.wytyczne }}</strong></td>
+                    <td><strong>{{ pz.obligatoryjne }}</strong></td>
+                        <td><strong>{{ pz.data_od}}</strong></td>
+                        <td><strong>{{ pz.data_do}}</strong></td>
+                        <td class="col-actions">
+                            {% if czy_tryb_edycji %}
+                            <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                <button type="button" class="btn"
+                                        onclick="openEditModal('{{ pz.id }}', '{{ pz.tresc|escapejs }}', '{{ pz.wytyczne|escapejs }}', {{ pz.obligatoryjne|yesno:'true,false' }})">
+                                    Modyfikuj
+                                </button>
+                                <form method="post" onsubmit="return confirm('Usunąć?')" style="margin:0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                                    <input type="hidden" name="podzapytanie_id" value="{{ pz.id }}">
+                                    <button type="submit" name="delete_podzapytanie" class="btn" style="">Usuń</button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span style="color:gray; font-style:italic;">Tylko odczyt</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="11">Brak danych.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL EDYCJI -->
+    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; width: 500px; margin: 50px auto; padding: 20px; border-radius: 8px;">
+            <h3>Modyfikuj Podzapytanie</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="rok" value="{{ wybrany_okres.rok }}">
+                <input type="hidden" name="podzapytanie_id" id="modal_pz_id">
+
+                <div class="form-group">
+                    <label>Treść:</label>
+                    <textarea name="tresc" id="modal_tresc" rows="3" style="width:100%;"></textarea>
+                </div>
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Wytyczne:</label>
+                    <textarea name="wytyczne" id="modal_wytyczne" rows="3" style="width:100%;"></textarea>
+                </div>
+                <div class="form-group" style="margin-top:10px;">
+                    <label><input type="checkbox" name="obligatoryjne" id="modal_oblig"> Obligatoryjne</label>
+                </div>
+
+                <div style="margin-top: 15px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeEditModal()">Anuluj</button>
+                    <button type="submit" name="edit_podzapytanie" class="btn btn-danger">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // KASKADA AJAX
+        const obsSelect = document.getElementById('id_obszaru_select');
+        const blokSelect = document.getElementById('id_bloku_select');
+        const podSelect = document.getElementById('id_podbloku_select');
+        const pytSelect = document.getElementById('id_pytania_select');
+        const form = document.getElementById('podzapytanieForm');
+
+        obsSelect?.addEventListener('change', function() {
+            blokSelect.innerHTML = podSelect.innerHTML = pytSelect.innerHTML = '<option value="">---------</option>';
+            if (!this.value) return;
+            fetch(`${form.dataset.blokiUrl}?id_obszaru=${this.value}`).then(res => res.json()).then(data => {
+                data.forEach(d => { blokSelect.innerHTML += `<option value="${d.id}">${d.kod}</option>`; });
+            });
+        });
+
+        blokSelect?.addEventListener('change', function() {
+            podSelect.innerHTML = pytSelect.innerHTML = '<option value="">---------</option>';
+            if (!this.value) return;
+            fetch(`${form.dataset.podblokiUrl}?id_bloku=${this.value}`).then(res => res.json()).then(data => {
+                data.forEach(d => { podSelect.innerHTML += `<option value="${d.id}">${d.kod}</option>`; });
+            });
+        });
+
+        podSelect?.addEventListener('change', function() {
+            pytSelect.innerHTML = '<option value="">---------</option>';
+            if (!this.value) return;
+            fetch(`${form.dataset.pytaniaUrl}?id_podbloku=${this.value}`).then(res => res.json()).then(data => {
+                data.forEach(d => { pytSelect.innerHTML += `<option value="${d.id}">${d.kod}</option>`; });
+            });
+        });
+
+        // MODAL
+        function openEditModal(id, tresc, wytyczne, oblig) {
+            document.getElementById('modal_pz_id').value = id;
+            document.getElementById('modal_tresc').value = tresc;
+            document.getElementById('modal_wytyczne').value = wytyczne;
+            document.getElementById('modal_oblig').checked = oblig;
+            document.getElementById('editModal').style.display = 'block';
+        }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
